@@ -40,7 +40,7 @@ const BlogPage = () => {
         if(blogId) {
             fetchRelatedBlogs();
         }
-    }, [location.pathname] )
+    },  [blogId, fetchRelatedBlogs] )
 
   return (
     <div>

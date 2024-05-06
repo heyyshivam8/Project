@@ -29,7 +29,7 @@ export default function App() {
     else {
       fetchData(Number(page));
     }
-  }, [location.pathname, location.search]);
+  }, [fetchData, searchParams]);
 
   return (
     <Routes>
