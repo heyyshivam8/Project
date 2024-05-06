@@ -26,7 +26,7 @@ export default function App() {
     }
 
     fetchData(page, tag, category);
-  }, [location.pathname, location.search]);
+  }, [location.pathname, fetchData, location.search]);
 
   return (
     <Routes>
