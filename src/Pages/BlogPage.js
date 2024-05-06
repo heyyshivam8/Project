@@ -1,84 +1,65 @@
-import React, { useContext } from 'react'
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import BlogDetail from '../components/BlogDetail';
 
 const BlogPage = () => {
     const newBaseUrl = "https://codehelp-apis.vercel.app/api/";
     const [blog, setBlog] = useState(null);
-    const[relatedblogs, setRelatedBlogs] = useState([]);
-    const location = useLocation();
+    const [relatedBlogs, setRelatedBlogs] = useState([]);
+    const { setLoading, loading } = useContext(AppContext);
     const navigation = useNavigate();
-    const {setLoading, loading} = useContext(AppContext);
+    const location = useLocation();
 
-    const blogId = location.pathname.split("/").at(-1);
-
-    async function fetchRelatedBlogs() {
-        setLoading(true);
-        let url = `${newBaseUrl}get-blog?blogId=${blogId}`;
-        console.log("URL is: ");
-        console.log(url);
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            
-            setBlog(data.blog);
-            setRelatedBlogs(data.relatedBlogs);
-        }
-        catch(error) {
-            console.log("Error aagya in blog id wali call");
-            setBlog(null);
-            setRelatedBlogs([]);
-        }
-        setLoading(false);
-    }
-
-    useEffect( () => {
-        if(blogId) {
-            fetchRelatedBlogs();
-        }
-    },  [blogId, fetchRelatedBlogs] )
-
-  return (
-    <div>
-      <Header/>
-      <div>
-        <button
-        onClick={() => navigation(-1)}
-        >
-            Back
-        </button>
-      </div>
-      {
-        loading ?
-        (<div>
-            <p> Loading</p>
-        </div>) :
-        blog ?
-        (<div>
-            <BlogDetail post={blog} />
-            <h2> Related Blogs </h2>
-            {
-                relatedblogs.map( (post) => (
-                    <div key = {post.id}>
-                        <BlogDetail post={post} />
-                    </div>
-                ) )
+    useEffect(() => {
+        const fetchRelatedBlogs = async () => {
+            setLoading(true);
+            const blogId = location.pathname.split("/").pop();
+            const url = `${newBaseUrl}get-blog?blogId=${blogId}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                setBlog(data.blog);
+                setRelatedBlogs(data.relatedBlogs);
+            } catch (error) {
+                console.log("Error fetching blog:", error);
+                setBlog(null);
+                setRelatedBlogs([]);
             }
+            setLoading(false);
+        };
 
-        </div>) :
-        (<div>
-            <p>No Blog Found</p>
-        </div>)
-       
-      }
+        fetchRelatedBlogs();
+    }, [location.pathname, setLoading]);
 
+    return (
+        <div>
+            <Header />
+            <div>
+                <button onClick={() => navigation(-1)}>Back</button>
+            </div>
+            {loading ? (
+                <div>
+                    <p>Loading</p>
+                </div>
+            ) : blog ? (
+                <div>
+                    <BlogDetail post={blog} />
+                    <h2>Related Blogs</h2>
+                    {relatedBlogs.map((post) => (
+                        <div key={post.id}>
+                            <BlogDetail post={post} />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div>
+                    <p>No Blog Found</p>
+                </div>
+            )}
+        </div>
+    );
+};
 
-    </div>
-  )
-}
-
-export default BlogPage
+export default BlogPage;
