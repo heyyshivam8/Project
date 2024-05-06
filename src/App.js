@@ -11,7 +11,7 @@ import CategoryPage from "./Pages/CategoryPage";
 export default function App() {
   const { fetchData } = useContext(AppContext);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const location = useLocation();
 
   useEffect(() => {
